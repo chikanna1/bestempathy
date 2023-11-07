@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  overflow-x: hidden;
+}
+
+.slick-slide > div {
+  margin: 0 30px;
+}
+
+.slick-slide > div:nth-child(1) {
+  margin-left: 0;
+}
+
+.slick-list {
+  margin-right: -30px;
+}
