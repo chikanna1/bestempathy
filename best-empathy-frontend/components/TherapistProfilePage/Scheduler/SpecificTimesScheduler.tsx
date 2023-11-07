@@ -27,7 +27,6 @@ import {
   setDate,
   getTime,
   startOfWeek,
-  formatDistance,
   endOfWeek,
   roundToNearestMinutes,
 } from "date-fns";
