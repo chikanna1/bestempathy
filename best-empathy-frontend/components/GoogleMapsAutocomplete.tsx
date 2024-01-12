@@ -9,8 +9,9 @@ import {
 import { resolve } from "path";
 
 import { Rings } from "react-loader-spinner";
+import { Autocomplete, useLoadScript } from "@react-google-maps/api";
+import ReactLoading from "react-loading";
 
-const mapApiJs = "https://maps.googleapis.com/maps/api/js";
 const apiKey = "AIzaSyC2ryNCZtcf1sFdowVC36QK6fEmO4KORPQ";
 const geocodeJson = "https://maps.googleapis.com/maps/api/geocode/json";
 
@@ -22,19 +23,6 @@ const backgroundClassMap = {
   themeBackgroundColor: "bg-mint-tulip-500",
   themeHoverBackgroundColor: "bg-mint-tulip-300",
 };
-
-function loadAsyncScript(src) {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    Object.assign(script, {
-      type: "text/javascript",
-      async: true,
-      src,
-    });
-    script.addEventListener("load", () => resolve(script));
-    document.head.appendChild(script);
-  });
-}
 
 const extractAddress = (place) => {
   console.log("Extracting Address");
@@ -90,15 +78,7 @@ const extractAddress = (place) => {
   return address;
 };
 
-function LocationInput({
-  setAddressValue,
-  setFormattedAddressValue,
-  setCountry,
-  setState,
-  setCity,
-  setCoordinates,
-  placeholderValue,
-}) {
+function GoogleMapsAutocomplete({ placeholderValue, routeToNewAddressQuery }) {
   let searchInput = useRef(null);
   // const searchInput = useState("");
   const [address, setAddress] = useState({});
@@ -108,47 +88,33 @@ function LocationInput({
   const [formattedAddress, setFormattedAddress] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [addressValue, setAddressValue] = useState("");
+  const [formattedAddressValue, setFormattedAddressValue] = useState("");
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
+  const [coordinates, setCoordinates] = useState({});
+
   const updateSearch = (e) => {
     setFormattedAddress(e.target.value);
-    // setValues({ ...values, ["formattedAddress"]: "" });
-    // setValues({ ...values, ["address"]: {} });
-    // setValues({
-    //   ...values,
-    //   ["formattedAddress"]: "",
-    //   ["address"]: {},
-    // });
-    // handleChangeAddress("", {});
-    setAddressValue({});
+    setAddressValue("");
     setFormattedAddressValue("");
-
-    // setValues({ ...values, ["formattedAddress"]: e.target.value });
     setAddress(searchInput);
-  };
-  const initMapScript = () => {
-    // if script already loaded
-    if (window.google) {
-      return Promise.resolve();
-    }
-    const src = `${mapApiJs}?key=${apiKey}&libraries=places&v=weekly`;
-    return loadAsyncScript(src);
   };
 
   // do something on address change
   const onChangeAddress = (autocomplete) => {
     const place = autocomplete.getPlace();
+
+    if (!("address_components" in place)) {
+      return;
+    }
+
     const lat = place.geometry.location.lat();
     const lng = place.geometry.location.lng();
-    // setAddressValue(place);
     console.log(place);
-    // setValues({ ...values, ["formattedAddress"]: "" });
-
-    // setValues({ ...values, ["address"]: place });
     setSearchTerm(place.formatted_address);
     setFormattedAddress(place.formatted_address);
-    // setValues({ ...values, ["formattedAddress"]: place.formatted_address });
-    // setValues({ ...values, ["address"]: place });
-
-    // handleChangeAddress(place.formatted_address, place);
     setAddressValue(place);
     setFormattedAddressValue(place.formatted_address);
 
@@ -173,21 +139,16 @@ function LocationInput({
     console.log(coordinates);
     setCoordinates(coordinates);
 
-    // setAddress(place.formatted_address);
+    routeToNewAddressQuery(
+      country,
+      state,
+      city,
+      coordinates.latitude,
+      coordinates.longitude
+    );
   };
 
   // init autocomplete
-  const initAutocomplete = () => {
-    if (!searchInput.current) return;
-
-    const autocomplete = new window.google.maps.places.Autocomplete(
-      searchInput.current
-    );
-    // autocomplete.setFields(["address_component", "geometry"]);
-    autocomplete.addListener("place_changed", () =>
-      onChangeAddress(autocomplete)
-    );
-  };
 
   const reverseGeocode = ({ latitude: lat, longitude: lng }) => {
     const url = `${geocodeJson}?key=${apiKey}&latlng=${lat},${lng}`;
@@ -217,29 +178,31 @@ function LocationInput({
         setCountry(country);
         console.log(coordinates);
         setCoordinates(coordinates);
-        // setAddress(_address);
         setLoadingTrue(false);
-        // setValues({ ...values, ["address"]: place });
         setAddress(place.formatted_address);
-        // searchInput.current.value = _address.plain();
         searchInput.current.value = place.formatted_address;
         setSearchTerm(place.formatted_address);
         setFormattedAddress(place.formatted_address);
-        // setValues({
-        //   ...values,
-        //   ["formattedAddress"]: place.formatted_address,
-        //   ["address"]: place,
-        // });
-        // handleChangeAddress(place.formatted_address, place);
         setAddressValue(place);
         setFormattedAddressValue(place.formatted_address);
         setCountry(extractAddress(place).country);
+
+        routeToNewAddressQuery(
+          country,
+          state,
+          city,
+          coordinates.latitude,
+          coordinates.longitude
+        );
 
         // setValues({ ...values, ["address"]: place });
       });
   };
 
-  const findMyLocation = () => {
+  const findMyLocation = (e) => {
+    if (e.detail === 0) {
+      return;
+    }
     console.log("Finding Location");
     setLoadingTrue(true);
     // searchInput.current.value = "Location...";
@@ -257,10 +220,25 @@ function LocationInput({
     }
   };
 
+  const LIBRARIES = ["places"];
+  const libraries = LIBRARIES;
+
   // load map script after mounted
+
+  const initAutocomplete = () => {
+    if (!searchInput.current) return;
+
+    const autocomplete = new window.google.maps.places.Autocomplete(
+      searchInput.current
+    );
+    autocomplete.addListener("place_changed", () =>
+      onChangeAddress(autocomplete)
+    );
+  };
+
   useEffect(() => {
-    initMapScript().then(() => initAutocomplete());
-  }, []);
+    initAutocomplete();
+  });
 
   return (
     <div className="h-[100%] ">
@@ -269,7 +247,6 @@ function LocationInput({
           ref={searchInput}
           type="text"
           placeholder={placeholderValue ? placeholderValue : "Location..."}
-          // onChange={() => setAddress(searchInput)}
           onChange={updateSearch}
           value={formattedAddress}
           className="rounded-md py-3 px-10 min-w-[200px] w-[100%] focus:outline-gray-600 focus:bg-white outline outline-2 outline-gray-400 h-[100%]"
@@ -301,4 +278,4 @@ function LocationInput({
   );
 }
 
-export default LocationInput;
+export default GoogleMapsAutocomplete;

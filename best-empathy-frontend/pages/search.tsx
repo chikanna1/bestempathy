@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import React from "react";
+import React, { useMemo, useState } from "react";
 
 import Script from "next/script";
 
@@ -16,10 +16,12 @@ import PlacesAutoComplete, {
 import { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Select from "react-select";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SearchByLocationForm from "../components/SearchByLocationForm";
+import SearchAutocomplete from "../components/SearchAutocomplete";
 
 const themeBorderColor = "mint-tulip-500";
 const themeTextColor = "mint-tulip-500";
@@ -36,27 +38,95 @@ import {
   faUserTie,
 } from "@fortawesome/free-solid-svg-icons";
 
+import {
+  useLoadScript,
+  GoogleMap,
+  MarkerF,
+  CircleF,
+  InfoWindowF,
+} from "@react-google-maps/api";
+import ReactLoading from "react-loading";
+
+import { therapistSpecialties } from "../assets/dataPoints/therapist-data-types";
+
 const FindATherapistPage: NextPage = () => {
   const router = useRouter();
+  const [locationData, setLocationData] = useState({});
 
-  const goToSearchResultsPage = (data) => {
-    console.log(data.message);
-    if (data.message.error) {
-      console.log("Error");
-      toast.error("Invalid Location. Please Enter a Valid Location");
-    } else {
-      router.push({
-        pathname: "/listings",
-        query: {
-          country: data.message.country,
-          state: data.message.state,
-          city: data.message.city,
-          latitude: data.message.latitude,
-          longitude: data.message.longitude,
-        },
-      });
+  let defaultSpecialty = [];
+
+  const [specialtyChoicesList, setSpecialtyChoicesList] =
+    useState(defaultSpecialty);
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    toast.clearWaitingQueue();
+
+    console.log(locationData);
+
+    if (Object.keys(locationData).length === 0) {
+      toast.error("Please Enter A Valid Location");
+      toast.clearWaitingQueue();
+      return;
     }
+    goToSearchResultsPage();
   };
+
+  const handleLocationSubmit = (e) => {
+    e.preventDefault();
+    return;
+  };
+
+  const goToSearchResultsPage = () => {
+    router.push({
+      pathname: "/listings",
+      query: {
+        country: locationData.country,
+        state: locationData.state,
+        city: locationData.city,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        filters: JSON.stringify({
+          specialty: specialtyChoicesList,
+          therapyApproaches: [],
+          languages: [],
+          classification: [],
+          radius: 50,
+          searchKeywords: "",
+          onlineTherapy: [],
+          acceptingNewClients: [],
+          inPersonTherapy: [],
+        }),
+        page: 1,
+        per_page: 10,
+      },
+    });
+  };
+
+  const apiKey = "AIzaSyC2ryNCZtcf1sFdowVC36QK6fEmO4KORPQ";
+  const libraries = useMemo(() => ["places"], []);
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: apiKey,
+    libraries: libraries as any,
+  });
+
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center mt-[10%]">
+        <Head>
+          <title>Create Next App</title>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <ReactLoading
+          type={"bars"}
+          color={"#03fc4e"}
+          height={500}
+          width={500}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="">
@@ -85,11 +155,58 @@ const FindATherapistPage: NextPage = () => {
           </div>
 
           {/* Search Input */}
-          <div>
-            <SearchByLocationForm
-              goToSearchResultsPage={goToSearchResultsPage}
-            />
-          </div>
+          <form onSubmit={handleFormSubmit}>
+            <div className="flex flex-col items-center">
+              <div className="flex flex-row items-center justify-center w-[57vw]">
+                {/* Location Search */}
+                <div className="mx-5">
+                  <SearchAutocomplete setLocationData={setLocationData} />
+                </div>
+                <div className="min-w-[350px] mx-5">
+                  <Select
+                    name="specialties"
+                    placeholder="I Need ______ Type Of Therapy "
+                    options={therapistSpecialties}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    isClearable={true}
+                    defaultValue={specialtyChoicesList}
+                    onChange={(specialtyValue) =>
+                      setSpecialtyChoicesList([specialtyValue?.value])
+                    }
+                    styles={{
+                      option: (styles, { data }) => ({
+                        ...styles,
+                        color:
+                          data.value === "none" ? "transparent" : styles.color,
+                        height: "50px",
+                      }),
+                      singleValue: (styles, { data }) => ({
+                        ...styles,
+                        color:
+                          data.value === "none" ? "transparent" : styles.color,
+                        height: "45px",
+                        paddingTop: "10px",
+                        paddingLeft: "10px",
+                      }),
+                      valueContainer: (styles) => ({
+                        ...styles,
+                        height: "50px",
+                      }),
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="mt-10">
+                <button
+                  className="px-10 py-5 bg-mint-tulip-600 rounded-md hover:bg-mint-tulip-400"
+                  type="submit"
+                >
+                  See Matching Therapists
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
       {/* Good Mental Health Takes Practice */}

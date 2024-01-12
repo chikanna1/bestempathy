@@ -53,6 +53,9 @@ function ProfilePage({ therapist }) {
       {/* Header */}
       {/* Header */}
       <Header />
+      <Profile therapist={therapist} />
+      {/*
+        
       <div className="flex flex-row justify-around mx-[25%] text-center py-[1%] mb-[30px] lg:mb-[15px]">
         <div
           className={`${
@@ -86,6 +89,7 @@ function ProfilePage({ therapist }) {
           }
         })()}
       </div>
+          */}
 
       {/* Footer */}
       <Footer />

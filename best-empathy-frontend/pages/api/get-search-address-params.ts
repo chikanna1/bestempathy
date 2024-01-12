@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { address, latitude, longitude } = JSON.parse(req.body);
+  const { address, latitude, longitude, filters } = JSON.parse(req.body);
 
-  const data = getSearchComponents(address, latitude, longitude);
+  const data = getSearchComponents(address, latitude, longitude, filters);
 
   console.log(data);
 
@@ -13,7 +13,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 const getSearchComponents = (
   address: { address_components: any[] },
   latitude: any,
-  longitude: any
+  longitude: any,
+  filters: any
 ) => {
   let addressObjectForSearch = {
     country: null,
@@ -21,6 +22,7 @@ const getSearchComponents = (
     state: null,
     latitude: latitude,
     longitude: longitude,
+    filters: filters,
   };
 
   try {

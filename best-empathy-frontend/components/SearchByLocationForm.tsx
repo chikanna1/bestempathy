@@ -102,6 +102,7 @@ function SearchByLocationForm({ goToSearchResultsPage }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const res = await fetch("/api/get-search-address-params", {
       method: "POST",
       mode: "no-cors",
@@ -109,6 +110,7 @@ function SearchByLocationForm({ goToSearchResultsPage }) {
         address: addressValue,
         latitude: latitude,
         longitude: longitude,
+        filters: {},
       }),
       headers: {
         "content-type": "application/json",
