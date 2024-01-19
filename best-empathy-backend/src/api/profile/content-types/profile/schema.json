@@ -140,6 +140,15 @@
     },
     "numberOfProfileShares": {
       "type": "integer"
+    },
+    "demographic": {
+      "type": "json"
+    },
+    "gender": {
+      "type": "json"
+    },
+    "religion": {
+      "type": "json"
     }
   }
 }

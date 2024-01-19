@@ -329,7 +329,8 @@ const TherapistListings: NextPage = ({
 
   const demographicsObj = therapistDemographics.map((demographic, idx) => {
     if (filtersQueryJSON["demographic"].indexOf(demographic.value) > -1) {
-      defaultDemographic = [demographic.value];
+      console.log("Found Demographic from Query");
+      defaultDemographic = [demographic];
       return {
         ...demographic,
         id: idx,
@@ -346,6 +347,8 @@ const TherapistListings: NextPage = ({
 
   const [demographicsFilter, setDemographicsFilter] =
     useState(defaultDemographic);
+
+  console.log(demographicsFilter);
 
   // Specialty Variables
   let defaultSpecialty = [];
@@ -1001,7 +1004,7 @@ const TherapistListings: NextPage = ({
                           <input
                             type="radio"
                             value={religion.label}
-                            name="qualificationFilter"
+                            name="religionFilter"
                             checked={religion.value === religionFilter[0]}
                           />
                           <p className="ml-3">{religion.label}</p>

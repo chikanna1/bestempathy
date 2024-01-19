@@ -139,8 +139,8 @@ export const acceptedPaymentMethods = [
 
 export const therapistAvailability = [
   { value: "acceptingNewClients", label: "Accepting New Clients" },
-  { value: "offeringInPersonTherapy", label: "Offering In-Person Therapy" },
-  { value: "offeringOnlineTherapy", label: "Offering Online Therapy" },
+  { value: "inPersonTherapy", label: "Offering In-Person Therapy" },
+  { value: "onlineTherapy", label: "Offering Online Therapy" },
 ];
 
 export const therapistGender = [
@@ -180,8 +180,7 @@ export const religiousPreferences = [
     label: "Latter Day Saints/Mormon",
   },
   { value: "other", label: "Other" },
-  { value: "agnostic", label: "Agnostic" },
-  { value: "atheist", label: "Atheist" },
+  { value: "secular", label: "Secular/Non-Religious" },
 ];
 
 export const professionalTitleOptions = [

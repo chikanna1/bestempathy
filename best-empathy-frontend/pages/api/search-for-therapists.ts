@@ -32,6 +32,10 @@ export default async function handler(
       specialty: [],
       radius: 50,
       searchKeywords: "",
+      availability: [],
+      demographic: [],
+      religion: [],
+      gender: [],
     };
 
     if (filters) {
@@ -45,6 +49,17 @@ export default async function handler(
 
     if (country == "United States" || country == "Canada") {
       //Get All  Results from Backend DB for Country and State of Query and Plus Member
+
+      let availabilityArr = [];
+      filtersObj.availability.map((availability) => {
+        availabilityArr.push(`{"${availability}": { "$eq": "true" } }`);
+      });
+
+      console.log(availabilityArr);
+
+      const availabilityFiltersArray = availabilityArr.map(
+        (availabilityJSONObj) => JSON.parse(availabilityJSONObj)
+      );
 
       const therapyApproachFiltersArray = filtersObj.therapyApproaches.map(
         (therapyApproach) => ({
@@ -91,6 +106,18 @@ export default async function handler(
         })
       );
 
+      const demographicsFilters = filtersObj.demographic.map((demographic) => ({
+        demographic: { $contains: demographic },
+      }));
+
+      const religionFilters = filtersObj.religion.map((religion) => ({
+        religion: { $contains: religion },
+      }));
+
+      const genderFilters = filtersObj.gender.map((gender) => ({
+        gender: { $contains: gender },
+      }));
+
       let specialtyFilters;
 
       specialtyFilters = filtersObj.specialty.map((specialty) => ({
@@ -113,10 +140,14 @@ export default async function handler(
 
       const plusMembersAndFilters = startingFiltersPlusMembers
         .concat(classificationFilters)
+        .concat(availabilityFiltersArray)
         .concat(specialtyFilters)
         .concat(languageFilters)
         .concat(therapyApproachFilters)
-        .concat(keywordSearchFilters);
+        .concat(keywordSearchFilters)
+        .concat(demographicsFilters)
+        .concat(religionFilters)
+        .concat(genderFilters);
 
       const queryPlusMembers = qs.stringify(
         {
@@ -130,7 +161,7 @@ export default async function handler(
       );
 
       const resPlusMembers = await fetch(
-        `${API_URL}/api/profiles?${queryPlusMembers}&fields[1]=firstName&fields[2]=lastName&fields[3]=acceptingNewClients&fields[4]=onlineTherapy&fields[5]=bio&fields[6]=specialties&fields[7]=languages&fields[8]=latitude&fields[9]=longitude&fields[10]=city&fields[11]=state&fields[12]=country&fields[13]=classification&fields[14]=title&fields[15]=therapyApproaches&fields[16]=profileImageUrl`
+        `${API_URL}/api/profiles?${queryPlusMembers}&fields[1]=firstName&fields[2]=lastName&fields[3]=acceptingNewClients&fields[4]=onlineTherapy&fields[5]=bio&fields[6]=specialties&fields[7]=languages&fields[8]=latitude&fields[9]=longitude&fields[10]=city&fields[11]=state&fields[12]=country&fields[13]=classification&fields[14]=title&fields[15]=therapyApproaches&fields[16]=profileImageUrl&fields[17]=demographic&fields[18]=religion&fields[19]=gender&fields[20]=inPersonTherapy`
       );
       const plusMemberTherapists = await resPlusMembers.json();
 
@@ -192,10 +223,14 @@ export default async function handler(
 
       const regularMembersAndFilters = startingFiltersRegularMembers
         .concat(classificationFilters)
+        .concat(availabilityFiltersArray)
         .concat(specialtyFilters)
         .concat(languageFilters)
         .concat(therapyApproachFilters)
-        .concat(keywordSearchFilters);
+        .concat(keywordSearchFilters)
+        .concat(demographicsFilters)
+        .concat(religionFilters)
+        .concat(genderFilters);
 
       const queryRegularMembers = qs.stringify(
         {
@@ -215,7 +250,7 @@ export default async function handler(
       // );
 
       const resRegularMembers = await fetch(
-        `${API_URL}/api/profiles?${queryRegularMembers}&fields[1]=firstName&fields[2]=lastName&fields[3]=acceptingNewClients&fields[4]=onlineTherapy&fields[5]=bio&fields[6]=specialties&fields[7]=languages&fields[8]=latitude&fields[9]=longitude&fields[10]=city&fields[11]=state&fields[12]=country&fields[13]=classification&fields[14]=title&fields[15]=therapyApproaches&fields[16]=profileImageUrl`
+        `${API_URL}/api/profiles?${queryRegularMembers}&fields[1]=firstName&fields[2]=lastName&fields[3]=acceptingNewClients&fields[4]=onlineTherapy&fields[5]=bio&fields[6]=specialties&fields[7]=languages&fields[8]=latitude&fields[9]=longitude&fields[10]=city&fields[11]=state&fields[12]=country&fields[13]=classification&fields[14]=title&fields[15]=therapyApproaches&fields[16]=profileImageUrl&fields[17]=demographic&fields[18]=religion&fields[19]=gender&fields[20]=inPersonTherapy`
       );
       const regularMemberTherapists = await resRegularMembers.json();
 
