@@ -8,6 +8,7 @@ export default async function handler(
 ) {
   const { slug, countToBeUpdated } = JSON.parse(req.body);
 
+  console.log(slug);
   const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
   const getCountRes = await fetch(

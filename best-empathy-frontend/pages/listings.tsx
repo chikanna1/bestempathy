@@ -28,6 +28,7 @@ import Autocompletor from "../components/Autocomplete";
 import { ListingProfile } from "../components/ListingProfile";
 import { getBoundsOfDistance } from "geolib";
 import { MapListingProfile } from "../components/MapListingProfile";
+import Modal from "../components/Modal";
 
 import {
   therapistSpecialties,
@@ -98,7 +99,21 @@ import { FC } from "react";
 import { Divide, Rotate } from "hamburger-react";
 import { fitBounds } from "google-map-react";
 import LocationInput from "../components/LocationInput";
-import { faUserPlus, faUserXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUserPlus,
+  faUserXmark,
+  faUser,
+  faUserCheck,
+  faGlobe,
+  faGlobeAmericas,
+  faFilter,
+} from "@fortawesome/free-solid-svg-icons";
+import dynamic from "next/dynamic";
+import ListingsFilterMobile from "../components/ListingsFilterMobile";
+import { ListingProfileMobile } from "../components/ListingProfileMobile";
+import { MapListingProfileMobile } from "../components/MapListingProfileMobile";
+import MessageDockMobile from "../components/MessageDockMobile";
+import { ContactForm } from "../components/ContactForm";
 
 const TherapistListings: NextPage = ({
   therapists,
@@ -131,12 +146,18 @@ const TherapistListings: NextPage = ({
 
   const router = useRouter();
   const [searchInput, setSearchInput] = useState("");
+  const [searchInputMobile, setSearchInputMobile] = useState("");
 
   const [isLoadingQuery, setIsLoadingQuery] = useState(false);
 
   const [activeMarker, setActiveMarker] = useState(null);
   const demographicSelectInputRef = useRef();
   const genderSelectInputRef = useRef();
+
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
+  const [hoveredMenuItem, setHoveredMenuItem] = useState("");
+  const [displayedComponent, setDisplayedComponent] = useState("listings");
 
   const [
     showOnlyTherapistsAcceptingNewClients,
@@ -236,7 +257,41 @@ const TherapistListings: NextPage = ({
     }
   });
 
+  const therapyApproachesObjMobile = therapistApproaches.map(
+    (approach, idx) => {
+      if (filtersQueryJSON["therapyApproaches"].indexOf(approach.value) > -1) {
+        return {
+          ...approach,
+          id: idx,
+          selected: true,
+        };
+      } else {
+        return {
+          ...approach,
+          id: idx,
+          selected: false,
+        };
+      }
+    }
+  );
+
   const languagesObj = languageOptions.map((language, idx) => {
+    if (filtersQueryJSON["languages"].indexOf(language.value) > -1) {
+      return {
+        ...language,
+        id: idx,
+        selected: true,
+      };
+    } else {
+      return {
+        ...language,
+        id: idx,
+        selected: false,
+      };
+    }
+  });
+
+  const languagesObjMobile = languageOptions.map((language, idx) => {
     if (filtersQueryJSON["languages"].indexOf(language.value) > -1) {
       return {
         ...language,
@@ -268,11 +323,38 @@ const TherapistListings: NextPage = ({
     }
   });
 
+  const availabilityObjMobile = therapistAvailability.map(
+    (availability, idx) => {
+      if (filtersQueryJSON["availability"].indexOf(availability.value) > -1) {
+        return {
+          ...availability,
+          id: idx,
+          selected: true,
+        };
+      } else {
+        return {
+          ...availability,
+          id: idx,
+          selected: false,
+        };
+      }
+    }
+  );
+
   const [availabilityFilter, setAvailabilityFilter] = useState(availabilityObj);
+  const [availabilityFilterMobile, setAvailabilityFilterMobile] = useState(
+    availabilityObjMobile
+  );
 
   const [languagesFilter, setLanguagesFilter] = useState(languagesObj);
+  const [languagesFilterMobile, setLanguagesFilterMobile] =
+    useState(languagesObjMobile);
+
   const [therapyApproachesFilter, setTherapyApproachesFilter] =
     useState(therapyApproachesObj);
+
+  const [therapyApproachesFilterMobile, setTherapyApproachesFilterMobile] =
+    useState(therapyApproachesObjMobile);
 
   const position = {
     lat: parseFloat(query.latitude),
@@ -298,8 +380,28 @@ const TherapistListings: NextPage = ({
       };
     }
   });
+  const qualificationsObjMobile = therapistCredentials.map(
+    (credential, idx) => {
+      if (filtersQueryJSON["classification"].indexOf(credential.value) > -1) {
+        defaultQualification = [credential.value];
+        return {
+          ...credential,
+          id: idx,
+          selected: true,
+        };
+      } else {
+        return {
+          ...credential,
+          id: idx,
+          selected: false,
+        };
+      }
+    }
+  );
 
   const [qualificationsFilter, setQualificationsFilter] =
+    useState(defaultQualification);
+  const [qualificationsFilterMobile, setQualificationsFilterMobile] =
     useState(defaultQualification);
 
   // Religious Variables
@@ -322,14 +424,32 @@ const TherapistListings: NextPage = ({
     }
   });
 
+  const religionObjMobile = religiousPreferences.map((religion, idx) => {
+    if (filtersQueryJSON["religion"].indexOf(religion.value) > -1) {
+      defaultReligion = [religion.value];
+      return {
+        ...religion,
+        id: idx,
+        selected: true,
+      };
+    } else {
+      return {
+        ...religion,
+        id: idx,
+        selected: false,
+      };
+    }
+  });
+
   const [religionFilter, setReligionFilter] = useState(defaultReligion);
+  const [religionFilterMobile, setReligionFilterMobile] =
+    useState(defaultReligion);
 
   // Demographics Variables
   let defaultDemographic = [];
 
   const demographicsObj = therapistDemographics.map((demographic, idx) => {
     if (filtersQueryJSON["demographic"].indexOf(demographic.value) > -1) {
-      console.log("Found Demographic from Query");
       defaultDemographic = [demographic];
       return {
         ...demographic,
@@ -345,10 +465,30 @@ const TherapistListings: NextPage = ({
     }
   });
 
+  const demographicsObjMobile = therapistDemographics.map(
+    (demographic, idx) => {
+      if (filtersQueryJSON["demographic"].indexOf(demographic.value) > -1) {
+        defaultDemographic = [demographic];
+        return {
+          ...demographic,
+          id: idx,
+          selected: true,
+        };
+      } else {
+        return {
+          ...demographic,
+          id: idx,
+          selected: false,
+        };
+      }
+    }
+  );
+
   const [demographicsFilter, setDemographicsFilter] =
     useState(defaultDemographic);
 
-  console.log(demographicsFilter);
+  const [demographicsFilterMobile, setDemographicsFilterMobile] =
+    useState(defaultDemographic);
 
   // Specialty Variables
   let defaultSpecialty = [];
@@ -370,7 +510,27 @@ const TherapistListings: NextPage = ({
     }
   });
 
+  const specialtiesObjMobile = therapistSpecialties.map((specialty, idx) => {
+    if (filtersQueryJSON["specialty"].indexOf(specialty.value) > -1) {
+      defaultSpecialty = [specialty];
+      return {
+        ...specialty,
+        id: idx,
+        selected: true,
+      };
+    } else {
+      return {
+        ...specialty,
+        id: idx,
+        selected: false,
+      };
+    }
+  });
+
   const [specialtyChoicesList, setSpecialtyChoicesList] =
+    useState(defaultSpecialty);
+
+  const [specialtyChoicesListMobile, setSpecialtyChoicesListMobile] =
     useState(defaultSpecialty);
 
   // Specialty Variables
@@ -393,7 +553,26 @@ const TherapistListings: NextPage = ({
     }
   });
 
+  const genderObjMobile = therapistGender.map((gender, idx) => {
+    if (filtersQueryJSON["gender"].indexOf(gender.value) > -1) {
+      defaultGender = [gender];
+      return {
+        ...gender,
+        id: idx,
+        selected: true,
+      };
+    } else {
+      return {
+        ...gender,
+        id: idx,
+        selected: false,
+      };
+    }
+  });
+
   const [genderChoicesList, setGenderChoicesList] = useState(defaultGender);
+  const [genderChoicesListMobile, setGenderChoicesListMobile] =
+    useState(defaultGender);
 
   const handleInputChangeList = (event, action) => {
     console.log(event);
@@ -420,6 +599,13 @@ const TherapistListings: NextPage = ({
   const [open, setOpen] = useState(1);
 
   const [mapOpen, setMapOpen] = useState(false);
+
+  const [filterQuery, setFilterQuery] = useState(filtersQueryJSON);
+
+  const [messageDockOpen, setMessageDockOpen] = useState(false);
+
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+
   const handleOpen = (value) => {
     setOpen(open === value ? 0 : value);
   };
@@ -437,6 +623,7 @@ const TherapistListings: NextPage = ({
 
   const [lat, setLat] = useState(parseFloat(query.latitude));
   const [lng, setLng] = useState(parseFloat(query.longitude));
+  const [contactFormDetails, setContactFormDetails] = useState({});
 
   const previousPage = () => {
     setActiveMarker(null);
@@ -502,6 +689,37 @@ const TherapistListings: NextPage = ({
     });
   };
 
+  const resetFiltersMobile = () => {
+    setActiveMarker(null);
+    const page_to_route_to = query.page;
+    setRadius(50);
+
+    setQualificationsFilterMobile([]);
+    setGenderChoicesListMobile([]);
+    setDemographicsFilterMobile([]);
+    setReligionFilterMobile([]);
+    clearList(setTherapyApproachesFilterMobile, therapyApproachesFilterMobile);
+    clearList(setLanguagesFilterMobile, languagesFilterMobile);
+    clearList(setAvailabilityFilterMobile, availabilityFilterMobile);
+    setSearchInputMobile("");
+
+    router.push({
+      pathname: "/listings",
+      query: {
+        country: query.country,
+        state: query.state,
+        city: query.city,
+        latitude: query.latitude,
+        longitude: query.longitude,
+        filters: JSON.stringify({
+          ...emptyFilters,
+        }),
+        page: page_to_route_to,
+        per_page: 10,
+      },
+    });
+  };
+
   const routeToNewQueryPage = (
     filterObjectKey,
     filterObjectKeyValues,
@@ -511,6 +729,30 @@ const TherapistListings: NextPage = ({
     const filterFromQuery = filtersQueryJSON;
 
     filterFromQuery[filterObjectKey] = filterObjectKeyValues;
+    console.log(filterFromQuery);
+
+    const page_to_route_to = startFromBeginning ? 1 : query.page;
+    router.push({
+      pathname: "/listings",
+      query: {
+        country: query.country,
+        state: query.state,
+        city: query.city,
+        latitude: query.latitude,
+        longitude: query.longitude,
+        filters: JSON.stringify({
+          ...filterFromQuery,
+        }),
+        page: page_to_route_to,
+        per_page: 10,
+      },
+    });
+  };
+
+  const updateSearch = (startFromBeginning = false) => {
+    setActiveMarker(null);
+    const filterFromQuery = filterQuery;
+    setIsFiltersOpen(false);
     console.log(filterFromQuery);
 
     const page_to_route_to = startFromBeginning ? 1 : query.page;
@@ -561,9 +803,26 @@ const TherapistListings: NextPage = ({
     setLng(longitude);
   };
 
-  const updateQueryList = (setStateFunction, list, id, filterObjectKey) => {
+  const updateQueryFilters = (filterObjectKey, filterObjectKeyValues) => {
+    const filterFromQuery = filterQuery;
+
+    filterFromQuery[filterObjectKey] = filterObjectKeyValues;
+
+    setFilterQuery(filterFromQuery);
+    console.log(filterFromQuery);
+  };
+
+  const updateQueryList = (
+    setStateFunction,
+    list,
+    id,
+    filterObjectKey,
+    routeToNewPage = true
+  ) => {
     const changedList = handleSelectCheckboxInList(list, id);
     setStateFunction(changedList);
+
+    console.log(changedList);
 
     const selectedFilters = changedList.filter((obj) => {
       if (obj.selected === true) return obj;
@@ -571,7 +830,11 @@ const TherapistListings: NextPage = ({
 
     let selectedValues = selectedFilters.map((obj) => obj.value);
 
-    routeToNewQueryPage(filterObjectKey, selectedValues, true);
+    if (routeToNewPage) {
+      routeToNewQueryPage(filterObjectKey, selectedValues, true);
+    } else {
+      updateQueryFilters(filterObjectKey, selectedValues);
+    }
   };
 
   const clearList = (setStateFunction, list) => {
@@ -589,9 +852,9 @@ const TherapistListings: NextPage = ({
     setStateFunction,
     stateVariable,
     newValue,
-    filterObjectKey
+    filterObjectKey,
+    routeToNewPage = true
   ) => {
-    console.log(newValue);
     if (stateVariable[0] === newValue[0]) {
       // Same Value is Being Clicked So Clear the State
       setStateFunction([]);
@@ -599,8 +862,42 @@ const TherapistListings: NextPage = ({
     } else {
       setStateFunction(newValue);
     }
+    if (routeToNewPage) {
+      routeToNewQueryPage(filterObjectKey, newValue, true);
+    } else {
+      updateQueryFilters(filterObjectKey, newValue);
+    }
+  };
 
-    routeToNewQueryPage(filterObjectKey, newValue, true);
+  const handlePhoneClick = async (phoneNumber, slug) => {
+    router.push({
+      pathname: `tel:${phoneNumber}`,
+    });
+    const res = await fetch(`${NEXT_URL}/api/endpoint-update-count`, {
+      method: "POST",
+      body: JSON.stringify({
+        slug: slug,
+        countToBeUpdated: "numberOfCallsToTherapist",
+      }),
+    });
+
+    if (res.ok) {
+      console.log("Successfully Updated Calls To Therapist");
+    }
+  };
+
+  const handleEmailClick = (therapistDetails, platform = "mobile") => {
+    setContactFormDetails({
+      email: therapistDetails.email,
+      slug: therapistDetails.slug,
+      firstName: therapistDetails.firstName,
+    });
+
+    if (platform === "mobile") {
+      setMessageDockOpen(true);
+    } else {
+      setMessageModalOpen(true);
+    }
   };
 
   const libraries = useMemo(() => ["places"], []);
@@ -634,7 +931,16 @@ const TherapistListings: NextPage = ({
     googleMapsApiKey: apiKey,
     libraries: libraries as any,
   });
+  const handleDisplayComponentClick = (itemClicked) => {
+    setActiveMarker(null);
 
+    if (itemClicked === "map") {
+      setDisplayedComponent("map");
+    }
+    if (itemClicked === "listings") {
+      setDisplayedComponent("listings");
+    }
+  };
   if (!isLoaded || isLoadingQuery) {
     return (
       <div className="flex flex-col items-center justify-center mt-[10%]">
@@ -662,9 +968,297 @@ const TherapistListings: NextPage = ({
       {/* Header */}
       <Header />
 
-      {/* Listings Page Body */}
+      {/* Listings Page Mobile */}
+      <div className="lg:hidden flex flex-col">
+        {/* Map/Listings Menu */}
+        <div
+          className={`border w-[50vh] border-black mx-auto h-[50px] rounded-sm flex text-gray-500`}
+        >
+          <div
+            className={
+              `w-[50%] text-center border-r-1 ` +
+              (displayedComponent === "listings"
+                ? "bg-blue-gray-200 cursor-pointer "
+                : "") +
+              (hoveredMenuItem === "listings"
+                ? "cursor-pointer bg-gray-100"
+                : "") +
+              (hoveredMenuItem === "listings" &&
+              displayedComponent === "listings"
+                ? "cursor-pointer bg-blue-gray-200"
+                : "")
+            }
+            onMouseEnter={() => setHoveredMenuItem("listings")}
+            onMouseLeave={() => setHoveredMenuItem("")}
+            onClick={() => handleDisplayComponentClick("listings")}
+          >
+            <div>
+              <FontAwesomeIcon
+                className={
+                  displayedComponent === "listings" ||
+                  hoveredMenuItem === "listings"
+                    ? ` text-mint-tulip-600`
+                    : `text-gray-500`
+                }
+                icon={faUser}
+                size="1x"
+              />
+            </div>
+            <div>
+              <p
+                className={
+                  `font-bold` +
+                  (displayedComponent === "listings"
+                    ? " underline text-black"
+                    : "") +
+                  (hoveredMenuItem === "listings" ? " text-black" : "")
+                }
+              >
+                Listings
+              </p>
+            </div>
+          </div>
+          <div
+            className={
+              `w-[50%] text-center border-l-1 ` +
+              (displayedComponent === "map"
+                ? "bg-blue-gray-200 cursor-pointer "
+                : "") +
+              (hoveredMenuItem === "map" ? "cursor-pointer bg-gray-100" : "") +
+              (hoveredMenuItem === "map" && displayedComponent === "map"
+                ? "cursor-pointer bg-blue-gray-200"
+                : "")
+            }
+            onMouseEnter={() => setHoveredMenuItem("map")}
+            onMouseLeave={() => setHoveredMenuItem("")}
+            onClick={() => handleDisplayComponentClick("map")}
+          >
+            <div>
+              <FontAwesomeIcon
+                className={
+                  displayedComponent === "map" || hoveredMenuItem === "map"
+                    ? ` text-mint-tulip-600`
+                    : `text-gray-500`
+                }
+                icon={faGlobeAmericas}
+                size="1x"
+              />
+            </div>
+            <div>
+              <p
+                className={
+                  `font-bold` +
+                  (displayedComponent === "map"
+                    ? " underline text-black"
+                    : "") +
+                  (hoveredMenuItem === "map" ? " text-black" : "")
+                }
+              >
+                Map
+              </p>
+            </div>
+          </div>
+        </div>
 
-      <div className="flex flex-row justify-between px-[20px] mt-5">
+        {/* Component To Display */}
+        {displayedComponent === "listings" ? (
+          <div className="mx-[5%]">
+            <div className="flex flex-col mt-[5%]">
+              {/* Filters Toggle */}
+              <div>
+                <div className="flex flex-col items-center mx-[5%]">
+                  <button onClick={() => setIsFiltersOpen(true)}>
+                    <FontAwesomeIcon
+                      className={`${backgroundClassMap["themeTextColor"]}`}
+                      icon={faFilter}
+                      size="1x"
+                    />
+                    <p className="text-[10px]">Filters</p>
+                  </button>
+                </div>
+
+                <ListingsFilterMobile
+                  isFiltersOpen={isFiltersOpen}
+                  setIsFiltersOpen={setIsFiltersOpen}
+                  handleSearchSubmit={handleSearchSubmit}
+                  setSearchInput={setSearchInputMobile}
+                  searchInput={searchInputMobile}
+                  resetFilters={resetFiltersMobile}
+                  availabilityObj={availabilityObjMobile}
+                  updateQueryList={updateQueryList}
+                  setAvailabilityFilter={setAvailabilityFilterMobile}
+                  availabilityFilter={availabilityFilterMobile}
+                  updateRadioInput={updateRadioInput}
+                  setGenderChoicesList={setGenderChoicesListMobile}
+                  genderChoicesList={genderChoicesListMobile}
+                  genderObj={genderObjMobile}
+                  demographicsObj={demographicsObjMobile}
+                  setDemographicsFilter={setDemographicsFilterMobile}
+                  demographicsFilter={demographicsFilterMobile}
+                  specialtiesObj={specialtiesObjMobile}
+                  setSpecialtyChoicesList={setSpecialtyChoicesListMobile}
+                  specialtyChoicesList={specialtyChoicesListMobile}
+                  setLanguagesFilter={setLanguagesFilterMobile}
+                  languagesFilter={languagesFilterMobile}
+                  setTherapyApproachesFilter={setTherapyApproachesFilterMobile}
+                  therapyApproachesFilter={therapyApproachesFilterMobile}
+                  setReligionFilter={setReligionFilterMobile}
+                  religionFilter={religionFilterMobile}
+                  religionObj={religionObjMobile}
+                  setQualificationsFilter={setQualificationsFilterMobile}
+                  qualificationsFilter={qualificationsFilterMobile}
+                  qualificationsObj={qualificationsObjMobile}
+                  updateSearch={updateSearch}
+                />
+              </div>
+            </div>
+
+            {/* Mobile Listings */}
+            <div className="flex flex-col w-[100%]">
+              {isLoadingQuery ? (
+                <div>
+                  <ReactLoading
+                    type={"bars"}
+                    color={"#03fc4e"}
+                    height={500}
+                    width={500}
+                  />
+                </div>
+              ) : (
+                <div className={`bg-white  mt-5 ml-3`}>
+                  <div className="text-center text-[20px] font-semibold">
+                    <p>
+                      Therapists in{" "}
+                      {query.country === "United States" ||
+                      query.country === "Canada"
+                        ? `${query.city}, ${query.state}`
+                        : `${query.city}, ${query.country}`}
+                    </p>
+                  </div>
+                  <MessageDockMobile
+                    setIsMessageDockOpen={setMessageDockOpen}
+                    messageDockOpen={messageDockOpen}
+                    therapist={contactFormDetails}
+                  />
+                  {therapists.length > 0 ? (
+                    therapists.map((therapist) => (
+                      <div className="py-2">
+                        <ListingProfileMobile
+                          therapist={therapist}
+                          handlePhoneClick={handlePhoneClick}
+                          handleEmailClick={handleEmailClick}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center mt-10">
+                      <p className="capitalize font-bold italic">
+                        No therapists matched your search query. Please revise
+                        your search parameters
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Pagination Controls */}
+              <div className="w-[100%] flex gap-[50%] px-[20%] justify-center">
+                {hasPrevPage ? (
+                  <button
+                    className="px-5 py-2 bg-mint-tulip-400 text-white text-[20px] rounded-md"
+                    onClick={previousPage}
+                  >
+                    <p className="w-[100px]">Previous</p>
+                  </button>
+                ) : (
+                  ""
+                )}
+                {hasNextPage ? (
+                  <button
+                    className="px-5 py-2 bg-mint-tulip-400 text-white text-[20px] rounded-md"
+                    onClick={nextPage}
+                  >
+                    <p className="w-[100px]">Next</p>
+                  </button>
+                ) : (
+                  ""
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Map Display
+          <div>
+            {/* Map Area */}
+
+            <div className="mx-[10%] mt-5">
+              <div className="flex flex-col items-center bg-white sticky top-[100px]">
+                {/* Google map */}
+
+                {isLoadingQuery ? (
+                  <div>
+                    <ReactLoading
+                      type={"bars"}
+                      color={"#03fc4e"}
+                      height={500}
+                      width={500}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="w-[100%] h-[500px]"
+                    // style={{ height: "100%", width: "100%" }}
+                  >
+                    <GoogleMap
+                      options={mapOptions}
+                      zoom={zoomLevelDict[radius]}
+                      center={mapCenter}
+                      mapContainerStyle={{ width: "100%", height: "100%" }}
+                      onLoad={onLoad}
+                    >
+                      <CircleF center={mapCenter} options={circleOptions} />
+
+                      {therapists.map((therapist, idx) => (
+                        <MarkerF
+                          key={query.page + idx}
+                          position={{
+                            lat: therapist.latitude + idx * 0.03,
+                            lng: therapist.longitude + idx * 0.05,
+                          }}
+                          onClick={() => handleActiveMarker(query.page + idx)}
+                        >
+                          {activeMarker === query.page + idx ? (
+                            <InfoWindowF
+                              onCloseClick={() => setActiveMarker(null)}
+                            >
+                              <div>
+                                <MapListingProfileMobile
+                                  therapist={therapist}
+                                />
+                              </div>
+                            </InfoWindowF>
+                          ) : null}
+                        </MarkerF>
+                      ))}
+                    </GoogleMap>
+                  </div>
+                )}
+
+                <div className="text-center mt-2 mb-10">
+                  <p className="text-[20px] font-semibold">Search Location</p>
+                  <p className="text-[20px]">
+                    {query.country === "United States" ||
+                    query.country === "Canada"
+                      ? `${query.city}, ${query.state}`
+                      : `${query.city}, ${query.country}`}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Listings Page Body Desktop */}
+      <div className="hidden lg:flex flex-row justify-between px-[20px] mt-5 ">
         <div className="flex flex-col mt-3 w-[75%]">
           {/* <form action="" onSubmit={(e) => handleFormSubmit(e)}> */}
           <div
@@ -887,7 +1481,7 @@ const TherapistListings: NextPage = ({
                             value={specialty.label}
                             name="specialtyChoicesList"
                             checked={
-                              specialty.value === specialtyChoicesList[0]
+                              specialty.value === specialtyChoicesList[0]?.value
                             }
                           />
                           <p className="ml-3">{specialty.label}</p>
@@ -1071,7 +1665,13 @@ const TherapistListings: NextPage = ({
                   {therapists.length > 0 ? (
                     therapists.map((therapist) => (
                       <div className="py-2">
-                        <ListingProfile therapist={therapist} />
+                        <ListingProfile
+                          therapist={therapist}
+                          handlePhoneClick={handlePhoneClick}
+                          handleEmailClick={handleEmailClick}
+                          setMessageModalOpen={setMessageModalOpen}
+                          messageModalOpen={messageModalOpen}
+                        />
                       </div>
                     ))
                   ) : (

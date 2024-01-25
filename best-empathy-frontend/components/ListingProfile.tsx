@@ -19,6 +19,8 @@ import {
   faVideoSlash,
   faLink,
 } from "@fortawesome/free-solid-svg-icons";
+import { ContactForm } from "./ContactForm";
+import Modal from "./Modal";
 const backgroundClassMap = {
   themeBorderColor: "border-mint-tulip-500",
   themeTextColor: "text-mint-tulip-500",
@@ -26,7 +28,13 @@ const backgroundClassMap = {
   themeTextSecondaryColor: "black",
 };
 
-export const ListingProfile = ({ therapist }) => {
+export const ListingProfile = ({
+  therapist,
+  handleEmailClick,
+  handlePhoneClick,
+  setMessageModalOpen,
+  messageModalOpen,
+}) => {
   return (
     <div className="m-3 border-b-2 border-2 shadow-lg hover:shadow-2xl cursor-pointer">
       <div className="flex flex-row w-[100%] px-[30px] py-[20px] items-center">
@@ -175,8 +183,72 @@ export const ListingProfile = ({ therapist }) => {
               )}
             </div>
           </div>
+          {/* Call/Email for Plus Members */}
+          <div className="mt-5">
+            {therapist.plusMember ? (
+              <div className="flex">
+                <div
+                  className="flex justify-center items-center bg-mint-tulip-600 text-white w-[45%] py-2 hover:bg-mint-tulip-400 mx-3"
+                  onClick={() =>
+                    handlePhoneClick(therapist.phoneNumber, therapist.slug)
+                  }
+                >
+                  <div className="text-center mx-3">
+                    <FontAwesomeIcon
+                      className={`text-white w-[25px]`}
+                      icon={faPhoneVolume}
+                      size="2x"
+                    />
+                  </div>
+                  <div className="text-center mx-3">
+                    <p className="text-[18px] ml-1">Call</p>
+                  </div>
+                </div>
+                <div
+                  className="flex justify-center items-center bg-mint-tulip-600 text-white w-[45%] py-2 hover:bg-mint-tulip-400 mx-3"
+                  onClick={() =>
+                    handleEmailClick(
+                      {
+                        email: therapist.email,
+                        slug: therapist.slug,
+                        firstName: therapist.firstName,
+                      },
+                      "desktop"
+                    )
+                  }
+                >
+                  <div className="text-center mx-3">
+                    <FontAwesomeIcon
+                      className={`text-white w-[30px]`}
+                      icon={faEnvelopeCircleCheck}
+                      size="2x"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[18px] ml-1">Message</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+          </div>
         </div>
       </div>
+      <Modal
+        isVisible={messageModalOpen}
+        onClose={() => setMessageModalOpen(false)}
+      >
+        <p className="text-center text-[15px]">
+          Send an Email to{" "}
+          <span className=" capitalize">{therapist.firstName}</span>
+        </p>
+        <ContactForm
+          therapist_email_address={therapist.email}
+          therapist_slug={therapist.slug}
+          mobile={true}
+        />
+      </Modal>
     </div>
   );
 };

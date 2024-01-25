@@ -161,7 +161,7 @@ export default async function handler(
       );
 
       const resPlusMembers = await fetch(
-        `${API_URL}/api/profiles?${queryPlusMembers}&fields[1]=firstName&fields[2]=lastName&fields[3]=acceptingNewClients&fields[4]=onlineTherapy&fields[5]=bio&fields[6]=specialties&fields[7]=languages&fields[8]=latitude&fields[9]=longitude&fields[10]=city&fields[11]=state&fields[12]=country&fields[13]=classification&fields[14]=title&fields[15]=therapyApproaches&fields[16]=profileImageUrl&fields[17]=demographic&fields[18]=religion&fields[19]=gender&fields[20]=inPersonTherapy`
+        `${API_URL}/api/profiles?${queryPlusMembers}&fields[1]=firstName&fields[2]=lastName&fields[3]=acceptingNewClients&fields[4]=onlineTherapy&fields[5]=bio&fields[6]=specialties&fields[7]=languages&fields[8]=latitude&fields[9]=longitude&fields[10]=city&fields[11]=state&fields[12]=country&fields[13]=classification&fields[14]=title&fields[15]=therapyApproaches&fields[16]=profileImageUrl&fields[17]=demographic&fields[18]=religion&fields[19]=gender&fields[20]=inPersonTherapy&fields[21]=plusMember&fields[22]=phoneNumber&fields[23]=email&fields[24]=slug`
       );
       const plusMemberTherapists = await resPlusMembers.json();
 
@@ -250,7 +250,7 @@ export default async function handler(
       // );
 
       const resRegularMembers = await fetch(
-        `${API_URL}/api/profiles?${queryRegularMembers}&fields[1]=firstName&fields[2]=lastName&fields[3]=acceptingNewClients&fields[4]=onlineTherapy&fields[5]=bio&fields[6]=specialties&fields[7]=languages&fields[8]=latitude&fields[9]=longitude&fields[10]=city&fields[11]=state&fields[12]=country&fields[13]=classification&fields[14]=title&fields[15]=therapyApproaches&fields[16]=profileImageUrl&fields[17]=demographic&fields[18]=religion&fields[19]=gender&fields[20]=inPersonTherapy`
+        `${API_URL}/api/profiles?${queryRegularMembers}&fields[1]=firstName&fields[2]=lastName&fields[3]=acceptingNewClients&fields[4]=onlineTherapy&fields[5]=bio&fields[6]=specialties&fields[7]=languages&fields[8]=latitude&fields[9]=longitude&fields[10]=city&fields[11]=state&fields[12]=country&fields[13]=classification&fields[14]=title&fields[15]=therapyApproaches&fields[16]=profileImageUrl&fields[17]=demographic&fields[18]=religion&fields[19]=gender&fields[20]=inPersonTherapy&fields[21]=plusMember&fields[22]=slug`
       );
       const regularMemberTherapists = await resRegularMembers.json();
 
