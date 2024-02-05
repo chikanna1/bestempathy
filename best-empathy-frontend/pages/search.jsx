@@ -1,4 +1,3 @@
-import type { NextPage } from "next";
 import React, { useMemo, useState } from "react";
 
 import Script from "next/script";
@@ -49,7 +48,7 @@ import ReactLoading from "react-loading";
 
 import { therapistSpecialties } from "../assets/dataPoints/therapist-data-types";
 
-const FindATherapistPage: NextPage = () => {
+const FindATherapistPage = () => {
   const router = useRouter();
   const [locationData, setLocationData] = useState({});
 
@@ -96,7 +95,7 @@ const FindATherapistPage: NextPage = () => {
           onlineTherapy: [],
           acceptingNewClients: [],
           inPersonTherapy: [],
-          availability: [],
+          availability: ["acceptingNewClients"],
           demographic: [],
           religion: [],
           gender: [],
@@ -112,7 +111,7 @@ const FindATherapistPage: NextPage = () => {
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: apiKey,
-    libraries: libraries as any,
+    libraries: libraries,
   });
 
   if (!isLoaded) {
@@ -147,7 +146,7 @@ const FindATherapistPage: NextPage = () => {
 
       <div className="flex flex-col bg-gradient-to-tr from-mint-tulip-100 to-mint-tulip-700 py-[7%]">
         {/* Find a Therapist Header */}
-        <div className="flex flex-col justify-center items-center h-[30vh]">
+        <div className="flex flex-col justify-center items-center h-[70vh] md:h-[50vh] lg:h-[30vh]">
           {/* Header Text */}
           <div className="flex flex-col justify-center">
             <h1 className="text-center text-[40px] capitalize">
@@ -161,12 +160,15 @@ const FindATherapistPage: NextPage = () => {
           {/* Search Input */}
           <form onSubmit={handleFormSubmit}>
             <div className="flex flex-col items-center">
-              <div className="flex flex-row items-center justify-center w-[57vw]">
+              <div className="flex flex-col lg:flex-row items-center justify-center lg:w-[57vw]">
                 {/* Location Search */}
-                <div className="mx-5">
-                  <SearchAutocomplete setLocationData={setLocationData} />
+                <div className="mx-5 my-5 w-[100%]">
+                  <SearchAutocomplete
+                    setLocationData={setLocationData}
+                    mobile={true}
+                  />
                 </div>
-                <div className="min-w-[350px] mx-5">
+                <div className="min-w-[350px] w-[100%] mx-5 my-5">
                   <Select
                     name="specialties"
                     placeholder="I Need ______ Type Of Therapy "
@@ -218,11 +220,12 @@ const FindATherapistPage: NextPage = () => {
         <div>
           <br />
           <h2 className="capitalize text-[25px] text-center">
-            Good mental health takes practice daily
+            Good mental health takes practice{" "}
+            <span className="text-black font-semibold">daily</span>
           </h2>
           <br />
-          <div className="flex flex-row justify-center px-[50px] items-center">
-            <div className="w-[400px] h-[350px]">
+          <div className="flex flex-col lg:flex-row justify-center px-[5%] md:px-[10%] lg:px-[50px] items-center">
+            <div className="w-[400px] md:w-[600px] md:h-[600px] lg:w-[500px] lg:h-[500px] h-[350px]">
               <Image
                 width="0"
                 height="0"
@@ -231,22 +234,27 @@ const FindATherapistPage: NextPage = () => {
                 alt="Badge"
               />
             </div>
-            <div className="w-[60%] pl-[50px]">
-              <p>
+            <div className="lg:w-[60%] lg:pl-[50px] lg:px-[50px] text-center lg:text-left mt-[20px] lg:mt-0 w-[400px] md:w-[600px]">
+              <p className="text-[18px]">
                 The quest for a happy and healthy life is a life-long journey.
                 Using the resources of an expert to help guide this journey is a
                 very smart approach. Often times it requires the observations of
                 another to help put things into perspective. This can be
                 especially important in situations where mental health problems
                 like addiction, depression or anxiety interfere with our ability
-                to see our own situation clearly. Whether you are suffering the
-                effects of a major life change such as grief and loss, PTSD,
-                relationship issues, sexual abuse, or clinical medical issues
-                like bipolar disorder, substance abuse, schizophrenia – good
-                counseling can serve as a positive life force.
+                to see our own situation clearly.
               </p>
               <br />
-              <p>
+
+              <p className="text-[18px]">
+                Whether you are suffering the effects of a major life change
+                such as grief and loss, PTSD, relationship issues, sexual abuse,
+                or clinical medical issues like bipolar disorder, substance
+                abuse, schizophrenia – good counseling can serve as a positive
+                life force.
+              </p>
+              <br />
+              <p className="hidden lg:block">
                 <span className="font-bold">INVEST IN YOUR FUTURE:</span>{" "}
                 Contact a therapist today! Search by location and specialization
                 for a list of qualified mental health professionals in your
@@ -261,11 +269,11 @@ const FindATherapistPage: NextPage = () => {
         <div>
           <br />
           <h2 className="capitalize text-[25px] text-center">
-            The state of mental health today
+            The state of mental health today{" "}
           </h2>
           <br />
-          <div className="flex flex-row flex-row-reverse justify-center px-[50px] items-center">
-            <div className="w-[500px] h-[350px]">
+          <div className="flex flex-col lg:flex-row justify-center px-[5%] md:px-[10%] lg:px-[50px] items-center">
+            <div className="w-[400px] md:w-[600px] md:h-[600px] lg:w-[500px] lg:h-[500px] h-[350px]">
               <Image
                 width="0"
                 height="0"
@@ -274,8 +282,8 @@ const FindATherapistPage: NextPage = () => {
                 alt="Badge"
               />
             </div>
-            <div className="w-[60%] pr-[50px]">
-              <p>
+            <div className="lg:w-[60%] lg:pl-[50px] lg:px-[50px] text-center lg:text-left mt-[20px] lg:mt-0 w-[400px] md:w-[600px]">
+              <p className="text-[18px]">
                 Therapy is often viewed as limited to individuals with obvious
                 mental challenges. However, mental health professionals receive
                 training to address a wide variety of conditions ranging from
@@ -284,7 +292,16 @@ const FindATherapistPage: NextPage = () => {
                 better understand and prepare for the challenges you face.
               </p>
               <br />
-              <p>
+
+              <p className="text-[18px]">
+                Whether you are suffering the effects of a major life change
+                such as grief and loss, PTSD, relationship issues, sexual abuse,
+                or clinical medical issues like bipolar disorder, substance
+                abuse, schizophrenia – good counseling can serve as a positive
+                life force.
+              </p>
+              <br />
+              <p className="hidden lg:block">
                 <span className="font-bold">INVEST IN YOUR FUTURE:</span>{" "}
                 Research shows that mental disorders are common, affecting tens
                 of millions of people each year, and only about half of those
@@ -304,9 +321,9 @@ const FindATherapistPage: NextPage = () => {
       </div>
       {/* Cards */}
       <div className="py-10 bg-gray-200/50">
-        <div className="flex flex-row px-[10%] text-center">
+        <div className="flex flex-col lg:flex-row px-[10%] text-center">
           {/* Card 1 */}
-          <div className="flex flex-col bg-white mx-[2.5%]">
+          <div className="flex flex-col bg-white mx-[2.5%] my-[25px]">
             <FontAwesomeIcon
               className="py-[10%]"
               icon={faEarthAmerica}
@@ -327,7 +344,7 @@ const FindATherapistPage: NextPage = () => {
           </div>
 
           {/* Card 2 */}
-          <div className="flex flex-col bg-white mx-[2.5%]">
+          <div className="flex flex-col bg-white mx-[2.5%] my-[25px]">
             <FontAwesomeIcon
               className="py-[10%]"
               icon={faPeopleGroup}
@@ -348,7 +365,7 @@ const FindATherapistPage: NextPage = () => {
           </div>
 
           {/* Card 3 */}
-          <div className="flex flex-col bg-white mx-[2.5%]">
+          <div className="flex flex-col bg-white mx-[2.5%] my-[25px]">
             <FontAwesomeIcon className="py-[10%]" icon={faUserTie} size="3x" />
             <h3 className="pb-[10%] text-2xl capitalize font-bold">
               For Professionals
@@ -368,7 +385,7 @@ const FindATherapistPage: NextPage = () => {
 
       {/* Bottom Section  */}
       <div className="flex flex-col items-center px-[20%]">
-        <h3 className="py-10 text-[30px]">
+        <h3 className="py-10 text-[30px] text-center lg:text-left">
           It takes a village. Find the support you need
         </h3>
         <div className="w-[600px] h-[400px]">

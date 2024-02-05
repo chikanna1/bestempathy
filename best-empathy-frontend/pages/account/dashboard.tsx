@@ -17,6 +17,7 @@ import { API_URL } from "../../config/index";
 import ReactLoading from "react-loading";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { acceptedPaymentMethods } from "../../assets/dataPoints/therapist-data-types";
 
 const DashboardPage = ({ therapistData, therapistProfileData, token }) => {
   const [data, setData] = useState([]);
@@ -276,6 +277,26 @@ export async function getServerSideProps({ req }) {
           data: {
             firstName: therapistInit.firstName,
             lastName: therapistInit.lastName,
+            languages: [],
+            acceptingNewClients: true,
+            onlineTherapy: false,
+            inPersonTherapy: false,
+            bio: "",
+            specialties: [],
+            facebook: "https://www.facebook.com",
+            instagram: "https://www.instagram.com",
+            pinterest: "https://www.pinterest.com",
+            linkedin: "https://wwww.linkedin.com",
+            twitter: "https://wwww.twitter.com",
+            insuranceAccepted: [],
+            sessionFee: 0,
+            degreesAndTraining: "",
+            therapyCredentials: [],
+            therapyApproaches: [],
+            acceptedPaymentMethods: [],
+            demographic: [],
+            gender: [],
+            religion: [],
             title: therapistInit.title,
             email: therapistInit.email,
             phoneNumber: therapistInit.phoneNumber,
@@ -283,12 +304,13 @@ export async function getServerSideProps({ req }) {
             professionalTitle: therapistInit.professionalTitle,
             address: therapistInit.address,
             formattedAddress: therapistInit.formattedAddress,
-            sessionFee: 0,
             slugReference: `${therapistInit.firstName}-${therapistInit.lastName}-${therapistInit.id}`,
             city: therapistInit.city,
             state: therapistInit.state,
             country: therapistInit.country,
             coordinates: therapistInit.coordinates,
+            latitude: therapistInit.coordinates.latitude,
+            longitude: therapistInit.coordinates.longitude,
             numberOfProfileViews: 0,
             numberOfEmailClicks: 0,
             numberOfCallsToTherapist: 0,

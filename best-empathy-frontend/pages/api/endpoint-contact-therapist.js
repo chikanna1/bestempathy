@@ -1,7 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import Mailjet from "node-mailjet";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default function handler(req, res) {
   const mailjet = Mailjet.apiConnect(
     process.env.MJ_APIKEY_PUBLIC,
     process.env.MJ_APIKEY_PRIVATE

@@ -24,6 +24,7 @@ export default async function handler(
       country,
       state,
       coordinates,
+      plusMember,
     } = req.body;
 
     const strapiRes = await fetch(`${API_URL}/api/auth/local/register`, {
@@ -52,7 +53,9 @@ export default async function handler(
     });
 
     try {
+      console.log("Getting Register Data...");
       const data = await strapiRes.json();
+      console.log(data);
       if (strapiRes.statusText === "OK") {
         res.setHeader(
           "Set-Cookie",

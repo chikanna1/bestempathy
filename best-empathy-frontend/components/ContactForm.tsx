@@ -18,19 +18,24 @@ export const ContactForm = ({
   therapist_slug,
   mobile = false,
   setIsMessageDockOpen = (isMessageDockOpen) => {},
+  onClose = () => {},
+  setName,
+  setEmail,
+  setPhoneNumber,
+  setMessage,
+  name,
+  email,
+  phoneNumber,
+  message,
 }) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [message, setMessage] = useState("");
   const [attempingToSendEmail, setAttemptingToSendEmail] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
 
   const setFieldsToEmpty = () => {
-    setName("");
-    setEmail("");
-    setPhoneNumber("");
+    // setName("");
+    // setEmail("");
+    // setPhoneNumber("");
     setMessage("");
   };
   const validateForm = () => {

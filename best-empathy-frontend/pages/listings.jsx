@@ -1,4 +1,3 @@
-import type { NextPage } from "next";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import Script from "next/script";
@@ -115,12 +114,7 @@ import { MapListingProfileMobile } from "../components/MapListingProfileMobile";
 import MessageDockMobile from "../components/MessageDockMobile";
 import { ContactForm } from "../components/ContactForm";
 
-const TherapistListings: NextPage = ({
-  therapists,
-  query,
-  hasPrevPage,
-  hasNextPage,
-}) => {
+const TherapistListings = ({ therapists, query, hasPrevPage, hasNextPage }) => {
   const zoomLevelDict = {
     100: 7,
     95: 7.1,
@@ -900,6 +894,20 @@ const TherapistListings: NextPage = ({
     }
   };
 
+  const handleListingView = async (slug) => {
+    const res = await fetch(`${NEXT_URL}/api/endpoint-update-count`, {
+      method: "POST",
+      body: JSON.stringify({
+        slug: slug,
+        countToBeUpdated: "numberOfListingViews",
+      }),
+    });
+
+    if (res.ok) {
+      console.log("Successfully Updated Listing Views for Therapist");
+    }
+  };
+
   const libraries = useMemo(() => ["places"], []);
   const mapCenter = useMemo(() => ({ lat: lat, lng: lng }), [lat, lng]);
 
@@ -918,18 +926,20 @@ const TherapistListings: NextPage = ({
     routeToNewQueryPage("searchKeywords", searchInput, true);
   };
 
-  const handleChangeSwitch = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    setStateFunction
-  ) => {
+  const handleChangeSwitch = (event, setStateFunction) => {
     setStateFunction(event.target.checked);
   };
   const LIBRARIES = ["places"];
   const apiKey = "AIzaSyC2ryNCZtcf1sFdowVC36QK6fEmO4KORPQ";
 
+  const [messageName, setMessageName] = useState("");
+  const [messageEmail, setMessageEmail] = useState("");
+  const [messagePhoneNumber, setMessagePhoneNumber] = useState("");
+  const [actualMessage, setActualMessage] = useState("");
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: apiKey,
-    libraries: libraries as any,
+    libraries: libraries,
   });
   const handleDisplayComponentClick = (itemClicked) => {
     setActiveMarker(null);
@@ -957,6 +967,10 @@ const TherapistListings: NextPage = ({
       </div>
     );
   }
+
+  therapists.map((therapist) => {
+    handleListingView(therapist.slug);
+  });
 
   return (
     <div className="">
@@ -1135,11 +1149,46 @@ const TherapistListings: NextPage = ({
                         : `${query.city}, ${query.country}`}
                     </p>
                   </div>
-                  <MessageDockMobile
-                    setIsMessageDockOpen={setMessageDockOpen}
-                    messageDockOpen={messageDockOpen}
-                    therapist={contactFormDetails}
-                  />
+                  <MessageDockMobile messageDockOpen={messageDockOpen}>
+                    <div className="flex flex-col justify-center items-center">
+                      <div onClick={() => setMessageDockOpen(false)}>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-10 h-10 mx-auto mb-10 cursor-pointer"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-center text-[15px]">
+                        Send an Email to{" "}
+                        <span className=" capitalize">
+                          {contactFormDetails.firstName}
+                        </span>
+                      </p>
+                      <ContactForm
+                        therapist_email_address={contactFormDetails.email}
+                        therapist_slug={contactFormDetails.slug}
+                        mobile={true}
+                        setIsMessageDockOpen={setMessageDockOpen}
+                        setName={setMessageName}
+                        name={messageName}
+                        setEmail={setMessageEmail}
+                        email={messageEmail}
+                        setPhoneNumber={setMessagePhoneNumber}
+                        phoneNumber={messagePhoneNumber}
+                        setMessage={setActualMessage}
+                        message={actualMessage}
+                      />
+                    </div>
+                  </MessageDockMobile>
                   {therapists.length > 0 ? (
                     therapists.map((therapist) => (
                       <div className="py-2">
@@ -1669,8 +1718,6 @@ const TherapistListings: NextPage = ({
                           therapist={therapist}
                           handlePhoneClick={handlePhoneClick}
                           handleEmailClick={handleEmailClick}
-                          setMessageModalOpen={setMessageModalOpen}
-                          messageModalOpen={messageModalOpen}
                         />
                       </div>
                     ))
@@ -1682,6 +1729,33 @@ const TherapistListings: NextPage = ({
                       </p>
                     </div>
                   )}
+                  <Modal
+                    isVisible={messageModalOpen}
+                    onClose={() => setMessageModalOpen(false)}
+                  >
+                    <div className="px-[20px]">
+                      <p className="text-center text-[15px]">
+                        Send an Email to{" "}
+                        <span className=" capitalize">
+                          {contactFormDetails.firstName}
+                        </span>
+                      </p>
+                      <ContactForm
+                        therapist_email_address={contactFormDetails.email}
+                        therapist_slug={contactFormDetails.slug}
+                        mobile={true}
+                        setIsMessageDockOpen={setMessageModalOpen}
+                        setName={setMessageName}
+                        name={messageName}
+                        setEmail={setMessageEmail}
+                        email={messageEmail}
+                        setPhoneNumber={setMessagePhoneNumber}
+                        phoneNumber={messagePhoneNumber}
+                        setMessage={setActualMessage}
+                        message={actualMessage}
+                      />
+                    </div>
+                  </Modal>
                 </div>
               )}
               {/* Pagination Controls */}
@@ -1763,8 +1837,12 @@ const TherapistListings: NextPage = ({
             )}
 
             <div className="text-center mt-5 mb-10">
-              <p className="text-[20px] font-semibold">Search Location</p>
-              <p className="text-[20px]">{query.city}</p>
+              <p className="text-[20px] font-bold">Search Location</p>
+              <p className="text-[18px] font-semibold">
+                {query.country === "United States" || query.country === "Canada"
+                  ? `${query.city}, ${query.state}`
+                  : `${query.city}, ${query.country}`}
+              </p>{" "}
             </div>
           </div>
         </div>

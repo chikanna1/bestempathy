@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import GoogleMapReact from "google-map-react";
 import Link from "next/link";
 
-import { ContactForm } from "../../components/ContactForm";
+import { ContactForm } from "../ContactForm";
 
 import therapist_profile_image_sample from "../../assets/images/therapist-profile-page/default-profile-icon.jpg";
 import { parseCookies } from "../../helpers";
@@ -15,7 +15,7 @@ import { FormEvent, Fragment, useEffect, useState } from "react";
 import Select from "react-select";
 
 import { Switch } from "@material-tailwind/react";
-import Modal from "../../components/Modal";
+import Modal from "../Modal";
 import CreatableSelect from "react-select/creatable";
 
 import {
@@ -123,6 +123,8 @@ const EditProfile = ({ closeModal, saveProfileData, getProfileData }) => {
     therapyCredentials: [],
     therapyApproaches: [],
     acceptedPaymentMethods: {},
+    country: "",
+    state: "",
   });
 
   useEffect(() => {
@@ -168,6 +170,8 @@ const EditProfile = ({ closeModal, saveProfileData, getProfileData }) => {
         ["therapyApproaches"]: profileData.therapyApproaches,
         ["acceptedPaymentMethods"]: profileData.acceptedPaymentMethods,
         ["professionalTitle"]: professionalTitle,
+        ["country"]: profileData.country,
+        ["state"]: profileData.state,
       });
 
       return { newState: true };
@@ -202,7 +206,7 @@ const EditProfile = ({ closeModal, saveProfileData, getProfileData }) => {
     setChangesMade(true);
   };
 
-  const handleChangeSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeSwitch = () => {
     setValues({ ...values, [event.target.name]: event.target.checked });
     setChangesMade(true);
   };
@@ -214,7 +218,7 @@ const EditProfile = ({ closeModal, saveProfileData, getProfileData }) => {
     console.log(values);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async () => {
     e.preventDefault();
 
     console.log("Handle Submit - New Profile Data");
@@ -577,11 +581,16 @@ const EditProfile = ({ closeModal, saveProfileData, getProfileData }) => {
                   icon={""}
                   className="bg-white mt-5 p-5 border border rounded-sm"
                 >
-                  <AccordionHeader onClick={() => handleOpen(1)} className="">
-                    <h3 className="md">Payment and Insurance Section</h3>
-                  </AccordionHeader>
-                  <AccordionBody>
-                    <div className="bg-slate-100 flex flex-col mt-3 text-black font-bold  ">
+                  {/* Insurance Section */}
+                  {/* If US/Cananda, Display Options */}
+                  {values.country === "United States" || "Canada" ? (
+                    <div>
+                      <AccordionHeader
+                        onClick={() => handleOpen(1)}
+                        className=""
+                      >
+                        <h3 className="md">Payment and Insurance Section</h3>
+                      </AccordionHeader>
                       <div className="flex flex-row items-center">
                         <h3>Accepted Insurances</h3>
                         <div className="px-5 w-[70%] ">
@@ -589,7 +598,7 @@ const EditProfile = ({ closeModal, saveProfileData, getProfileData }) => {
                             isMulti
                             maxMenuHeight={200}
                             name="insuranceAccepted"
-                            options={insuranceOptionsByState[therapistState]}
+                            options={insuranceOptionsByState[values.state]}
                             className="basic-multi-select"
                             classNamePrefix="select"
                             onChange={handleInputChangeList}
@@ -597,7 +606,15 @@ const EditProfile = ({ closeModal, saveProfileData, getProfileData }) => {
                           />
                         </div>
                       </div>
+                    </div>
+                  ) : (
+                    <AccordionHeader onClick={() => handleOpen(1)} className="">
+                      <h3 className="md">Payment Section</h3>
+                    </AccordionHeader>
+                  )}
 
+                  <AccordionBody>
+                    <div className="bg-slate-100 flex flex-col mt-3 text-black font-bold  ">
                       <div className="flex flex-col pt-[100px] pb-[20px]">
                         <div className="flex flex-row items-center">
                           <h3 className="w-[100px]">Session Fee: </h3>

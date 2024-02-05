@@ -78,7 +78,7 @@ const extractAddress = (place) => {
   return address;
 };
 
-function SearchAutocomplete({ setLocationData }) {
+function SearchAutocomplete({ setLocationData, mobile }) {
   let searchInput = useRef(null);
   // const searchInput = useState("");
   const [address, setAddress] = useState({});
@@ -259,8 +259,8 @@ function SearchAutocomplete({ setLocationData }) {
     }
   };
   return (
-    <div className="h-[50px] ">
-      <div className="flex flex-row items-center h-[100%] ">
+    <div className="h-[50px] w-[100%] ">
+      <div className="flex flex-row items-center h-[100%] w-[100%] ">
         <input
           ref={searchInput}
           type="text"
@@ -268,7 +268,7 @@ function SearchAutocomplete({ setLocationData }) {
           onKeyDown={handleKeyDown}
           onChange={updateSearch}
           value={formattedAddress}
-          className="rounded-sm py-3 px-10 min-w-[500px] w-[100%] focus:outline-gray-600 focus:bg-white outline outline-2 outline-gray-400 h-[100%]"
+          className="rounded-sm py-3 px-10  md:min-w-[500px] w-[100%] focus:outline-gray-600 focus:bg-white outline outline-2 outline-gray-400 h-[100%]"
         />
         <div className="w-[50px] h-[50px] flex items-center justify-center ml-[-70px] ">
           <button onClick={findMyLocation}>

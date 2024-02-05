@@ -1,10 +1,10 @@
 import { FC } from "react";
 import { Divide, Rotate } from "hamburger-react";
 import { fitBounds } from "google-map-react";
-import LocationInput from "../components/LocationInput";
+import LocationInput from "./LocationInput";
 import { faUserPlus, faUserXmark } from "@fortawesome/free-solid-svg-icons";
 
-import type { NextPage } from "next";
+import { NextPage } from "next";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import Script from "next/script";
@@ -21,19 +21,19 @@ import PlacesAutoComplete, {
 import { useRouter, useSearchParams } from "next/navigation";
 import ReactLoading from "react-loading";
 
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import SearchByLocationForm from "../components/SearchByLocationForm";
+import Header from "./Header";
+import Footer from "./Footer";
+import SearchByLocationForm from "./SearchByLocationForm";
 import { API_URL, NEXT_URL } from "../config/index";
 import Select from "react-select";
 import Slider from "rc-slider";
 import Range from "rc-slider";
 import { Switch } from "@material-tailwind/react";
 import "rc-slider/assets/index.css";
-import Autocompletor from "../components/Autocomplete";
-import { ListingProfile } from "../components/ListingProfile";
+import Autocompletor from "./Autocomplete";
+import { ListingProfile } from "./ListingProfile";
 import { getBoundsOfDistance } from "geolib";
-import { MapListingProfile } from "../components/MapListingProfile";
+import { MapListingProfile } from "./MapListingProfile";
 
 import {
   therapistSpecialties,
@@ -71,7 +71,7 @@ import dynamic from "next/dynamic";
 import AuthContext from "../context/AuthContext";
 import { useContext } from "react";
 
-import GoogleMapsAutocomplete from "../components/GoogleMapsAutocomplete";
+import GoogleMapsAutocomplete from "./GoogleMapsAutocomplete";
 
 const themeBorderColor = "mint-tulip-500";
 const themeTextColor = "mint-tulip-500";

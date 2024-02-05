@@ -326,7 +326,7 @@ function ProfilePage({ therapist, token, profile }) {
     setValues({ ...values, [name]: result });
   };
 
-  const handleChangeSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeSwitch = (event) => {
     setValues({ ...values, [event.target.name]: event.target.checked });
   };
 

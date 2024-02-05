@@ -5,7 +5,7 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 const Modal = ({ isVisible, onClose, children }) => {
   if (!isVisible) return null;
 
-  const handleClose = (e: { target: { id: string } }) => {
+  const handleClose = (e) => {
     if (e.target.id === "wrapper") onClose();
   };
 

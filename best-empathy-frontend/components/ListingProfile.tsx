@@ -32,8 +32,6 @@ export const ListingProfile = ({
   therapist,
   handleEmailClick,
   handlePhoneClick,
-  setMessageModalOpen,
-  messageModalOpen,
 }) => {
   return (
     <div className="m-3 border-b-2 border-2 shadow-lg hover:shadow-2xl cursor-pointer">
@@ -235,20 +233,6 @@ export const ListingProfile = ({
           </div>
         </div>
       </div>
-      <Modal
-        isVisible={messageModalOpen}
-        onClose={() => setMessageModalOpen(false)}
-      >
-        <p className="text-center text-[15px]">
-          Send an Email to{" "}
-          <span className=" capitalize">{therapist.firstName}</span>
-        </p>
-        <ContactForm
-          therapist_email_address={therapist.email}
-          therapist_slug={therapist.slug}
-          mobile={true}
-        />
-      </Modal>
     </div>
   );
 };

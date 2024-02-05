@@ -30,7 +30,7 @@ const Autocompletor = () => {
   const apiKey = "AIzaSyC2ryNCZtcf1sFdowVC36QK6fEmO4KORPQ";
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: apiKey,
-    libraries: libraries as any,
+    libraries: libraries,
   });
 
   const reverseGeocode = ({ latitude: lat, longitude: lng }) => {

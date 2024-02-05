@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import GoogleMapReact from "google-map-react";
 import MultiStepSignUpForm from "../../components/NewUserSignUp/MultiStepSignUpForm";
 import AuthContext from "../../context/AuthContext";
-import { API_URL } from "../../config";
+import { API_URL, NEXT_URL } from "../../config";
 
 import {
   Link,
@@ -42,6 +42,7 @@ const SignupForm = () => {
     membershipType: "yearly",
     classification: {},
     professionalTitle: { value: "none", label: "None" },
+    plusMember: false,
   });
 
   const [formattedAddress, setFormattedAddress] = useState("");
@@ -125,23 +126,27 @@ const SignupForm = () => {
     }
 
     const emailTakenReq = await fetch(
-      `${API_URL}/api/profiles?filters[email][$eq]=${values.email}`,
+      `${NEXT_URL}/api/endpoint-check-if-email-taken`,
       {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({
+          email: values.email,
+        }),
         headers: {
-          "Content-Type": "application/json",
+          "content-type": "application/json",
         },
-        method: "GET",
       }
     );
 
     const emailTakenRes = await emailTakenReq.json();
-    console.log(emailTakenRes);
 
-    if (emailTakenRes.meta.pagination.total >= 1) {
-      toast.error("Email Already in Use. Please Choose a Different Email");
+    if (emailTakenRes.statusCode !== 200) {
+      toast.error(
+        "Email Address Already in Use. Please Choose another Email Address"
+      );
       return false;
     }
-
     return true;
   };
 
@@ -200,6 +205,7 @@ const SignupForm = () => {
       country,
       coordinates
     );
+    console.log(res);
     if (res.registrationSuccessful) {
       await nextButton();
     } else {

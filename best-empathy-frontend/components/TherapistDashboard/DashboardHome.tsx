@@ -42,11 +42,7 @@ const DashboardHome = ({
     emailsToTherapist: therapistProfileData.numberOfEmailClicks || 0,
     profileVisits: therapistProfileData.numberOfProfileViews || 0,
     profileShares: therapistProfileData.numberOfProfileShares || 0,
-    resultsViews:
-      therapistProfileData.numberOfCallsToTherapist *
-      2 *
-      therapistProfileData.numberOfEmailClicks *
-      therapistProfileData.numberOfProfileShares,
+    resultsViews: therapistProfileData.numberOfListingViews || 0,
   };
 
   const chartData = {

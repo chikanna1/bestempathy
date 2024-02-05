@@ -1,4 +1,3 @@
-import type { NextPage } from "next";
 import React from "react";
 
 import Script from "next/script";
@@ -56,7 +55,7 @@ function nextArrow() {
   );
 }
 
-const SignUp: NextPage = ({}) => {
+const SignUp = ({}) => {
   return (
     <div className="">
       <Head>
